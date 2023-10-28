@@ -18,5 +18,11 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
     df_combined['block_duration'] = df_combined['datetime_last'] - df_combined['datetime']
     return DataFrame[CombinedChat](df_combined)
 
+
+def add_features(df: DataFrame[CombinedChat]):
+    df['week'] = df.datetime.dt.strftime('%Y-%U')
+    df['n_symbols'] = df.message.str.len()
+
+
 if __name__ == '__main__':
     pass

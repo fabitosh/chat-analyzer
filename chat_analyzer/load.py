@@ -7,7 +7,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from chat_analyzer import PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG
-from chat_analyzer.aggregate import merge_consecutive_msg
+from chat_analyzer.aggregate import merge_consecutive_msg, add_features
 from chat_analyzer.types import RawChat
 
 
@@ -29,8 +29,7 @@ def parse_whatsapp(chat_export: str) -> DataFrame[RawChat]:
         sender_to_receiver: dict = {chat_participants[0]: chat_participants[1],
                                     chat_participants[1]: chat_participants[0]}
         df['receiver'] = df['sender'].map(sender_to_receiver)
-    # df['week'] = df.datetime.dt.strftime('%Y-%U')
-    # df['n_symbols'] = df.message.str.len()
+
     return DataFrame[RawChat](df)
 
 
@@ -46,7 +45,7 @@ def aggregate_whatsapp_conversations(path_whatsapp_chats: str) -> Optional[pd.Da
 
             df_raw = parse_whatsapp(chat_export)
             df_combined = merge_consecutive_msg(df_raw)
-            df_chat = make_features(df_combined)
+            df_chat = add_features(df_combined)
 
             if df is None:
                 df = df_chat
