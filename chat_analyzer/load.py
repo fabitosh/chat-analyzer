@@ -8,7 +8,7 @@ from pandera.typing import DataFrame
 
 from chat_analyzer import PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG
 from chat_analyzer.aggregate import merge_consecutive_msg, add_features
-from chat_analyzer.types import RawChat
+from chat_analyzer.data_definitions import RawChat
 
 
 def parse_whatsapp(chat_export: str) -> DataFrame[RawChat]:
@@ -66,6 +66,7 @@ def agg_to_pkl(path_whatsapp, path_signal) -> str:
 
 
 if __name__ == "__main__":
-    agg_to_pkl(PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG)
+    pkl_path = agg_to_pkl(PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG)
+    print(f"Chats aggregated in pickle file at {pkl_path}")
 
 
