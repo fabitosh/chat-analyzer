@@ -26,3 +26,5 @@ class CombinedChat(RawChat):
 class Chat(CombinedChat):
     week: str  # Year-Week
     n_symbols: int
+    duration_since_their_last: timedelta64 = pa.Field(
+        description='Duration since the recipient texted at the time of the message')

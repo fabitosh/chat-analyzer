@@ -22,6 +22,15 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
 def add_features(df: DataFrame[CombinedChat]):
     df['week'] = df.datetime.dt.strftime('%Y-%U')
     df['n_symbols'] = df.message.str.len()
+    df['duration_since_their_last'] = determine_duration_since_their_last_message(df)
+
+
+def determine_duration_since_their_last_message(df) -> pd.Series:
+    mask_sender_change = df["sender"].shift(-1) != df["sender"]
+    time_since_last = (df['datetime'] -
+                         df.groupby(mask_sender_change.cumsum())['datetime_last'].transform("min").shift(1))
+    time_since_last = time_since_last.fillna(pd.Timedelta(seconds=0))  # first row
+    return time_since_last
 
 
 if __name__ == '__main__':
