@@ -5,7 +5,7 @@ from pandera.typing import DataFrame
 
 from chat_analyzer.aggregate import merge_consecutive_msg, determine_duration_since_their_last_message, \
     determine_duration_to_reply
-from chat_analyzer.types import RawChat
+from chat_analyzer.data_definitions import RawChat
 
 
 def test_merge_consecutive_msg():

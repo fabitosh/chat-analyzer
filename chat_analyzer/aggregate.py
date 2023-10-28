@@ -1,7 +1,7 @@
 import pandas as pd
 from pandera.typing import DataFrame
 
-from chat_analyzer.types import RawChat, CombinedChat
+from chat_analyzer.data_definitions import RawChat, CombinedChat, ChatFeatures
 
 
 def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) -> DataFrame[CombinedChat]:
@@ -19,11 +19,12 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
     return DataFrame[CombinedChat](df_combined)
 
 
-def add_features(df: DataFrame[CombinedChat]):
+def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
     df['week'] = df.datetime.dt.strftime('%Y-%U')
     df['n_symbols'] = df.message.str.len()
     df['duration_since_their_last'] = determine_duration_since_their_last_message(df)
     df['duration_to_reply'] = determine_duration_to_reply(df)
+    return DataFrame[ChatFeatures](df)
 
 
 def determine_duration_since_their_last_message(df) -> pd.Series:
