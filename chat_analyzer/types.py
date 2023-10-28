@@ -28,3 +28,6 @@ class Chat(CombinedChat):
     n_symbols: int
     duration_since_their_last: timedelta64 = pa.Field(
         description='Duration since the recipient texted at the time of the message')
+    determine_duration_to_reply: timedelta64 = pa.Field(
+        description='The duration it took to reply, iff the message is the first reply.',
+        nullable=True)

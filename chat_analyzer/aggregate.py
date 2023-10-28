@@ -23,6 +23,7 @@ def add_features(df: DataFrame[CombinedChat]):
     df['week'] = df.datetime.dt.strftime('%Y-%U')
     df['n_symbols'] = df.message.str.len()
     df['duration_since_their_last'] = determine_duration_since_their_last_message(df)
+    df['duration_to_reply'] = determine_duration_to_reply(df)
 
 
 def determine_duration_since_their_last_message(df) -> pd.Series:
@@ -31,6 +32,13 @@ def determine_duration_since_their_last_message(df) -> pd.Series:
                          df.groupby(mask_sender_change.cumsum())['datetime_last'].transform("min").shift(1))
     time_since_last = time_since_last.fillna(pd.Timedelta(seconds=0))  # first row
     return time_since_last
+
+
+def determine_duration_to_reply(df) -> pd.Series:
+    mask_is_new_sender = df["sender"].shift() != df["sender"]
+    time_last_message = df.groupby(mask_is_new_sender.cumsum())['datetime_last'].transform("max").shift()
+    time_to_respond = df.loc[mask_is_new_sender, 'datetime'] - time_last_message
+    return time_to_respond
 
 
 if __name__ == '__main__':
