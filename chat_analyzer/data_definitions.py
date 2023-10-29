@@ -9,6 +9,7 @@ class RawChat(pa.DataFrameModel):
     sender: str
     message: str
     receiver: str = pa.Field(nullable=True)  # unresolved for group chats
+    chat: str = pa.Field(description="Chat name, with which the entire conversation can be grouped")
 
 
 class CombinedChat(RawChat):
