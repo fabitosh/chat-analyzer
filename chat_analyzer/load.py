@@ -6,7 +6,7 @@ from typing import Optional
 import pandas as pd
 from pandera.typing import DataFrame
 
-from chat_analyzer import PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG
+from chat_analyzer import PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG, MY_CHAT_NAMES
 from chat_analyzer.aggregate import merge_consecutive_msg, add_features
 from chat_analyzer.data_definitions import RawChat
 
@@ -24,11 +24,16 @@ def parse_whatsapp(chat_export: str) -> DataFrame[RawChat]:
     df['datetime'] = pd.to_datetime(df['timestamp'], format="%d/%m/%Y, %H:%M", errors='raise')
     df = df.drop(columns='timestamp')
     # df['sender'] = df['sender'].astype("category")
-    chat_participants = df.sender.unique().tolist()
-    if len(chat_participants) == 2:
-        sender_to_receiver: dict = {chat_participants[0]: chat_participants[1],
-                                    chat_participants[1]: chat_participants[0]}
-        df['receiver'] = df['sender'].map(sender_to_receiver)
+    chat_participants = df.sender.unique()
+    df['chat'] = ', '.join([p for p in chat_participants if p not in MY_CHAT_NAMES])
+
+    if len(chat_participants) != 2:
+        raise NotImplementedError(f"Group Chats and Monologues are not supported. "
+                                  f"Your chat participants: {chat_participants}")
+
+    sender_to_receiver: dict = {chat_participants[0]: chat_participants[1],
+                                chat_participants[1]: chat_participants[0]}
+    df['receiver'] = df['sender'].map(sender_to_receiver)
 
     return DataFrame[RawChat](df)
 

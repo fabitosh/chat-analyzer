@@ -14,7 +14,9 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
         message=('message', '\n'.join),
         n_block=('message', 'count'),
         datetime_last=('datetime', 'last'),
-        receiver=('receiver', 'first'))
+        receiver=('receiver', 'first'),
+        chat=('chat', 'first')
+    )
     df_combined['block_duration'] = df_combined['datetime_last'] - df_combined['datetime']
     return DataFrame[CombinedChat](df_combined)
 
