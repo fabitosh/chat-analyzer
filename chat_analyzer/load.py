@@ -16,8 +16,7 @@ def parse_whatsapp(chat_export: str) -> DataFrame[RawChat]:
     matches = re.findall(pattern, chat_export, re.MULTILINE)
 
     data = []
-    for match in matches:
-        timestamp, sender, message = match
+    for timestamp, sender, message in matches:
         data.append({'timestamp': timestamp, 'sender': sender, 'message': message})
 
     df = pd.DataFrame(data)
@@ -25,21 +24,21 @@ def parse_whatsapp(chat_export: str) -> DataFrame[RawChat]:
     df = df.drop(columns='timestamp')
     # df['sender'] = df['sender'].astype("category")
     chat_participants = df.sender.unique()
-    df['chat'] = ', '.join([p for p in chat_participants if p not in MY_CHAT_NAMES])
+    df['chat'] = ', '.join(p for p in chat_participants if p not in MY_CHAT_NAMES)
 
     if len(chat_participants) != 2:
         raise NotImplementedError(f"Group Chats and Monologues are not supported. "
                                   f"Your chat participants: {chat_participants}")
 
-    sender_to_receiver: dict = {chat_participants[0]: chat_participants[1],
-                                chat_participants[1]: chat_participants[0]}
+    a, b = chat_participants
+    sender_to_receiver: dict = {a: b, b: a}
     df['receiver'] = df['sender'].map(sender_to_receiver)
 
     return DataFrame[RawChat](df)
 
 
 def aggregate_whatsapp_conversations(path_whatsapp_chats: str) -> Optional[pd.DataFrame]:
-    df = None
+    dfs = []
     for file in os.listdir(path_whatsapp_chats):
         filename = os.fsdecode(file)
         print(filename)
@@ -51,15 +50,8 @@ def aggregate_whatsapp_conversations(path_whatsapp_chats: str) -> Optional[pd.Da
             df_raw = parse_whatsapp(chat_export)
             df_combined = merge_consecutive_msg(df_raw)
             df_chat = add_features(df_combined)
-
-            if df is None:
-                df = df_chat
-            else:
-                df = pd.concat([df, df_chat])
-            continue
-        else:
-            continue
-    return df
+            dfs.append(df_chat)
+    return pd.concat(dfs)
 
 
 def agg_to_pkl(path_whatsapp, path_signal) -> str:
@@ -73,5 +65,3 @@ def agg_to_pkl(path_whatsapp, path_signal) -> str:
 if __name__ == "__main__":
     pkl_path = agg_to_pkl(PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG)
     print(f"Chats aggregated in pickle file at {pkl_path}")
-
-
