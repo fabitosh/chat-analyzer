@@ -41,6 +41,7 @@ def determine_duration_to_reply(df) -> pd.Series:
     mask_is_new_sender = df["sender"].shift() != df["sender"]
     time_last_message = df.groupby(mask_is_new_sender.cumsum())['datetime_last'].transform("max").shift()
     time_to_respond = df.loc[mask_is_new_sender, 'datetime'] - time_last_message
+    time_to_respond[0] = pd.Timedelta('0 days 00:00:00')
     return time_to_respond
 
 
