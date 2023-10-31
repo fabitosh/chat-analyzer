@@ -5,9 +5,14 @@ from numpy import timedelta64
 
 
 class RawChat(pa.DataFrameModel):
+    """Parsed raw input from the txt file"""
     datetime: datetime
     sender: str
     message: str
+
+
+class SingleChat(RawChat):
+    """Contains one chat without aggregations. Allows determination of receiver"""
     receiver: str = pa.Field(nullable=True)  # unresolved for group chats
     chat: str = pa.Field(description="Chat name, with which the entire conversation can be grouped")
 

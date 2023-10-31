@@ -15,10 +15,10 @@ def test_parse_whatsapp_ignores_whatsapp_disclaimer():
     result = parse_whatsapp(raw_text_input)
 
     expected = {
-        'index': [0, 1, ], 'columns': ['timestamp', 'sender', 'message', 'datetime', 'receiver'],
+        'index': [0, 1, ], 'columns': ['sender', 'message', 'datetime'],
         'data': [
-            ['06/01/2020, 23:39', 'Max', 'Hello there', pd.Timestamp('2020-01-06 23:39:00'), 'Veronika'],
-            ['07/01/2020, 07:00', 'Veronika', 'Who are you?', pd.Timestamp('2020-01-07 07:00:00'), 'Max']],
+            ['Max', 'Hello there', pd.Timestamp('2020-01-06 23:39:00')],
+            ['Veronika', 'Who are you?', pd.Timestamp('2020-01-07 07:00:00')]],
         'index_names': [None], 'column_names': [None]}
     df_expected = pd.DataFrame.from_dict(expected, orient='tight')
 
@@ -35,12 +35,12 @@ def test_parse_whatsapp_can_handle_emojis():
     result = parse_whatsapp(raw_text_input)
 
     expected = {
-        'index': [0, 1, 2, 3], 'columns': ['timestamp', 'sender', 'message', 'datetime', 'receiver'],
+        'index': [0, 1, 2, 3], 'columns': ['sender', 'message', 'datetime'],
         'data': [
-            ['06/01/2020, 23:39', 'Max', 'Hello there 😁', pd.Timestamp('2020-01-06 23:39:00'), 'Veronika'],
-            ['07/01/2020, 07:00', 'Veronika', 'Who are you? 😡', pd.Timestamp('2020-01-07 07:00:00'), 'Max'],
-            ['07/01/2020, 11:43', 'Veronika', 'Leave me alone.', pd.Timestamp('2020-01-07 11:43:00'), 'Max'],
-            ['07/01/2020, 13:01', 'Max', 'Sorry.', pd.Timestamp('2020-01-07 13:01:00'), 'Veronika']],
+            ['Max', 'Hello there 😁', pd.Timestamp('2020-01-06 23:39:00')],
+            ['Veronika', 'Who are you? 😡', pd.Timestamp('2020-01-07 07:00:00')],
+            ['Veronika', 'Leave me alone.', pd.Timestamp('2020-01-07 11:43:00')],
+            ['Max', 'Sorry.', pd.Timestamp('2020-01-07 13:01:00')]],
         'index_names': [None], 'column_names': [None]}
     df_expected = pd.DataFrame.from_dict(expected, orient='tight')
 
@@ -57,12 +57,12 @@ def test_parse_whatsapp_can_handle_spaces_in_name():
     result = parse_whatsapp(raw_text_input)
 
     expected = {
-        'index': [0, 1, 2, 3], 'columns': ['timestamp', 'sender', 'message', 'datetime', 'receiver'],
+        'index': [0, 1, 2, 3], 'columns': ['sender', 'message', 'datetime'],
         'data': [
-            ['06/01/2020, 23:39', 'Max Von Muster', 'Hello there 😁', pd.Timestamp('2020-01-06 23:39:00'), 'Veronika'],
-            ['07/01/2020, 07:00', 'Veronika', 'Who are you? 😡', pd.Timestamp('2020-01-07 07:00:00'), 'Max Von Muster'],
-            ['07/01/2020, 11:43', 'Veronika', 'Leave me alone.', pd.Timestamp('2020-01-07 11:43:00'), 'Max Von Muster'],
-            ['07/01/2020, 13:01', 'Max Von Muster', 'Sorry.', pd.Timestamp('2020-01-07 13:01:00'), 'Veronika']],
+            ['Max Von Muster', 'Hello there 😁', pd.Timestamp('2020-01-06 23:39:00')],
+            ['Veronika', 'Who are you? 😡', pd.Timestamp('2020-01-07 07:00:00')],
+            ['Veronika', 'Leave me alone.', pd.Timestamp('2020-01-07 11:43:00')],
+            ['Max Von Muster', 'Sorry.', pd.Timestamp('2020-01-07 13:01:00')]],
         'index_names': [None], 'column_names': [None]}
     df_expected = pd.DataFrame.from_dict(expected, orient='tight')
 
