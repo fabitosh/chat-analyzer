@@ -83,7 +83,7 @@ def test_determine_duration_to_reply():
 
     out = determine_duration_to_reply(df)
 
-    expected = pd.Series({0: NaT,
+    expected = pd.Series({0: Timedelta('0 days 00:00:00'),
                           1: Timedelta('0 days 00:20:00'),
                           2: NaT,
                           3: NaT,
