@@ -14,18 +14,15 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
         message=('message', '\n'.join),
         n_block=('message', 'count'),
         datetime_last=('datetime', 'last'),
-        receiver=('receiver', 'first'),
-        chat=('chat', 'first')
-    )
+    ).reset_index(drop=True)
     df_combined['block_duration'] = df_combined['datetime_last'] - df_combined['datetime']
     return DataFrame[CombinedChat](df_combined)
 
 
 def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
+    """Features which can be determined without the context of the chat"""
     df['week'] = df.datetime.dt.strftime('%Y-%U')
     df['n_symbols'] = df.message.str.len()
-    df['duration_since_their_last'] = determine_duration_since_their_last_message(df)
-    df['duration_to_reply'] = determine_duration_to_reply(df)
     return DataFrame[ChatFeatures](df)
 
 

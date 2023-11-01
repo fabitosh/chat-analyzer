@@ -10,13 +10,13 @@ from chat_analyzer.data_definitions import RawChat
 
 def test_merge_consecutive_msg():
     raw = {
-        'index': [0, 1, 2, 3, 4], 'columns': ['sender', 'message', 'datetime', 'receiver'],
+        'index': [0, 1, 2, 3, 4], 'columns': ['sender', 'message', 'datetime'],
         'data': [
-            ['Max Von Muster', 'Hello there 😁', pd.Timestamp('2020-01-06 23:39:00'), 'Veronika'],
-            ['Veronika', 'Who are you? 😡', pd.Timestamp('2020-01-07 07:00:00'), 'Max Von Muster'],
-            ['Veronika', 'Leave me alone.', pd.Timestamp('2020-01-07 11:43:00'), 'Max Von Muster'],
-            ['Veronika', 'Changed my mind', pd.Timestamp('2020-01-07 11:44:00'), 'Max Von Muster'],
-            ['Max Von Muster', 'Sorry.', pd.Timestamp('2020-01-07 13:01:00'), 'Veronika']],
+            ['A', 'Hi', pd.Timestamp('2020-01-06 23:39:00')],
+            ['B', 'Who?', pd.Timestamp('2020-01-07 07:00:00')],
+            ['B', 'Leave', pd.Timestamp('2020-01-07 11:43:00')],
+            ['B', 'Now', pd.Timestamp('2020-01-07 11:44:00')],
+            ['A', 'Sorry.', pd.Timestamp('2020-01-07 13:01:00')]],
         'index_names': [None], 'column_names': [None]}
     df_raw = pd.DataFrame.from_dict(raw, orient='tight')
     df = DataFrame[RawChat](df_raw)
@@ -24,16 +24,16 @@ def test_merge_consecutive_msg():
 
     expected = \
         {'index': [0, 1, 2, 3],
-         'columns': ['datetime', 'sender', 'message', 'n_block', 'datetime_last', 'receiver', 'block_duration'],
+         'columns': ['datetime', 'sender', 'message', 'n_block', 'datetime_last', 'block_duration'],
          'data': [
-             [Timestamp('2020-01-06 23:39:00'), 'Max Von Muster', 'Hello there 😁', 1, Timestamp('2020-01-06 23:39'),
-              'Veronika', Timedelta('0 days 00:00:00')],
-             [Timestamp('2020-01-07 07:00:00'), 'Veronika', 'Who are you? 😡', 1, Timestamp('2020-01-07 07:00'),
-              'Max Von Muster', Timedelta('0 days 00:00:00')],
-             [Timestamp('2020-01-07 11:43'), 'Veronika', 'Leave me alone.\nChanged my mind', 2,
-              Timestamp('2020-01-07 11:44'), 'Max Von Muster', Timedelta('0 days 00:01:00')],
-             [Timestamp('2020-01-07 13:01'), 'Max Von Muster', 'Sorry.', 1, Timestamp('2020-01-07 13:01'),
-              'Veronika', Timedelta('0 days 00:00:00')]],
+             [Timestamp('2020-01-06 23:39:00'), 'A', 'Hi', 1, Timestamp('2020-01-06 23:39'),
+              Timedelta('0 days 00:00:00')],
+             [Timestamp('2020-01-07 07:00:00'), 'B', 'Who?', 1, Timestamp('2020-01-07 07:00'),
+              Timedelta('0 days 00:00:00')],
+             [Timestamp('2020-01-07 11:43'), 'B', 'Leave\nNow', 2, Timestamp('2020-01-07 11:44'),
+              Timedelta('0 days 00:01:00')],
+             [Timestamp('2020-01-07 13:01'), 'A', 'Sorry.', 1, Timestamp('2020-01-07 13:01'),
+              Timedelta('0 days 00:00:00')]],
          'index_names': [None], 'column_names': [None]}
     df_expected = pd.DataFrame.from_dict(expected, orient='tight')
 

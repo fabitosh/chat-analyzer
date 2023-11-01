@@ -11,12 +11,6 @@ class RawChat(pa.DataFrameModel):
     message: str
 
 
-class SingleChat(RawChat):
-    """Contains one chat without aggregations. Allows determination of receiver"""
-    receiver: str = pa.Field(nullable=True)  # unresolved for group chats
-    chat: str = pa.Field(description="Chat name, with which the entire conversation can be grouped")
-
-
 class CombinedChat(RawChat):
     """Aggregate multiple messages from the same person to one block"""
     datetime: datetime = pa.Field(description='Datetime of the first or only message that got grouped.')
@@ -27,6 +21,12 @@ class CombinedChat(RawChat):
     block_duration: timedelta64 = pa.Field(
         description='Time passed between the aggregated, consecutive messages.',
         nullable=True)
+
+
+class SingleChat(RawChat):
+    """Contains one chat without aggregations. Allows determination of receiver"""
+    receiver: str = pa.Field(nullable=True)  # unresolved for group chats
+    chat: str = pa.Field(description="Chat name, with which the entire conversation can be grouped")
 
 
 class ChatFeatures(CombinedChat):
