@@ -12,3 +12,14 @@ Manually export every chat into a .txt file. Dump all those into a folder and se
 ### Signal Messages
 To be implemented
 https://github.com/tbvdm/sigtop
+
+
+# Analysis 
+Analysis can happen on multiple layers:
+- Analysis which every message/row has.
+  - Statistics derived in the context of the chat should be included in `analyze.extract_single_chat_features()`. Example: Time it took to reply)
+  - Metrics that only need the row for context are put to `analyze.add_features()`. 
+- Analysis of one chat behaviour:
+- Analysis of the sender's instant messengers as whole
+
+
