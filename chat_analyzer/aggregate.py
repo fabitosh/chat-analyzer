@@ -1,7 +1,8 @@
 import pandas as pd
+from pandas.core.groupby import DataFrameGroupBy
 from pandera.typing import DataFrame
 
-from chat_analyzer.data_definitions import RawChat, CombinedChat, ChatFeatures
+from chat_analyzer.data_definitions import RawChat, CombinedChat
 
 
 def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) -> DataFrame[CombinedChat]:
@@ -19,28 +20,10 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
     return DataFrame[CombinedChat](df_combined)
 
 
-def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
-    """Features which can be determined without the context of the chat"""
-    df['week'] = df.datetime.dt.strftime('%Y-%U')
-    df['n_symbols'] = df.message.str.len()
-    return DataFrame[ChatFeatures](df)
-
-
-def determine_duration_since_their_last_message(df) -> pd.Series:
-    mask_sender_change = df["sender"].shift(-1) != df["sender"]
-    time_since_last = (df['datetime'] -
-                       df.groupby(mask_sender_change.cumsum())['datetime_last'].transform("min").shift(1))
-    time_since_last = time_since_last.fillna(pd.Timedelta(seconds=0))  # first row
-    return time_since_last
-
-
-def determine_duration_to_reply(df) -> pd.Series:
-    mask_is_new_sender = df["sender"].shift() != df["sender"]
-    time_last_message = df.groupby(mask_is_new_sender.cumsum())['datetime_last'].transform("max").shift()
-    time_to_respond = df.loc[mask_is_new_sender, 'datetime'] - time_last_message
-    time_to_respond[0] = pd.Timedelta('0 days 00:00:00')
-    return time_to_respond
-
-
-if __name__ == '__main__':
-    pass
+def agg_chat_metrics(dfgb: DataFrameGroupBy) -> None:
+    """derive statistics of grouped data"""
+    dfgb.agg(
+        total_symbols=('n_symbols', 'sum'),
+        total_messages=('message', 'count'),
+        avg_time_to_reply=('duration_to_reply', 'mean'),
+    )
