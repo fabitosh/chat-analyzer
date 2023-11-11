@@ -1,8 +1,11 @@
+from typing import Dict
+
 import pandas as pd
 from pandera.typing import DataFrame
 
 from chat_analyzer import MY_CHAT_NAMES
 from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat
+from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat, cat_weekdays
 
 
 def extract_single_chat_features(df) -> DataFrame[SingleChat]:
@@ -24,6 +27,8 @@ def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
     """Features which can be determined without the context of the chat"""
     df['week'] = df.datetime.dt.strftime('%Y-%U')
     df['n_symbols'] = df.message.str.len()
+    d: Dict[int, str] = dict(enumerate(cat_weekdays.categories))
+    df['weekday'] = df.datetime.dt.dayofweek.map(d).astype(cat_weekdays)
     return DataFrame[ChatFeatures](df)
 
 

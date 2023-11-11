@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pandera as pa
 from numpy import timedelta64
+from pandas import CategoricalDtype
 
 
 class RawChat(pa.DataFrameModel):
@@ -29,9 +30,15 @@ class SingleChat(RawChat):
     chat: str = pa.Field(description="Chat name, with which the entire conversation can be grouped")
 
 
+cat_weekdays = CategoricalDtype(
+    categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    ordered=True)
+
+
 class ChatFeatures(CombinedChat):
     week: str  # Year-Week
     n_symbols: int
+    weekday: cat_weekdays
     duration_since_their_last: timedelta64 = pa.Field(
         description='Duration since the recipient texted at the time of the message')
     duration_to_reply: timedelta64 = pa.Field(
