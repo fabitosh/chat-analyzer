@@ -4,8 +4,9 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from chat_analyzer import MY_CHAT_NAMES
-from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat
+from chat_analyzer.aggregate import agg_chat_metrics
 from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat, cat_weekdays
+from chat_analyzer.visualize import pretty_html, fig_time_to_reply_per_weekday
 
 
 def extract_single_chat_features(df) -> DataFrame[SingleChat]:
@@ -49,4 +50,22 @@ def determine_duration_to_reply(df) -> pd.Series:
 
 
 if __name__ == '__main__':
-    pass
+    df = pd.read_pickle("../data/df_whatsapp_10112023-2055.pkl")
+    for chat, df_chat in df.groupby("chat"):
+        print(chat)
+        # Chat Overview Metrics
+        chat_metrics = agg_chat_metrics(df_chat.groupby('sender'))
+        html_chat_metrics = pretty_html(chat_metrics, caption=f"Chat Metrics for {chat}")
+
+        # Plots
+        fig_time_to_reply = fig_time_to_reply_per_weekday(df_chat)
+        html_time_to_reply = fig_time_to_reply.to_html(full_html=False, include_plotlyjs='cdn')
+
+        with open(f'../data/Chat_Analysis_{chat.replace(" ", "_")}.html', 'w+') as f:
+            f.write(html_chat_metrics)
+            f.write(html_time_to_reply)
+
+        break
+
+
+

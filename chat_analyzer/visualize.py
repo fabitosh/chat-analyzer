@@ -86,3 +86,12 @@ def pretty_html(df, caption: str, path=None) -> Optional[str]:
 
     df.to_html(path)
 
+
+def fig_time_to_reply_per_weekday(df) -> go.Figure:
+    return px.box(df,
+                  x='weekday',
+                  y=df['duration_to_reply'].dt.total_seconds() / 60,
+                  color='sender',
+                  labels={'y': "Time to Reply [min]"},
+                  log_y=True,
+                  category_orders={'weekday': df.weekday.cat.categories})
