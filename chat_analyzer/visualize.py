@@ -1,4 +1,6 @@
+import base64
 import datetime
+from io import BytesIO
 from typing import Dict, Optional
 
 import pandas as pd
@@ -85,6 +87,15 @@ def pretty_html(df, caption: str, path=None) -> Optional[str]:
         return df.to_html()
 
     df.to_html(path)
+
+
+def matplotlib_fig_to_html(fig):
+    tmpfile = BytesIO()
+    fig.subplots_adjust(left=0.05)
+    fig.savefig(tmpfile, format='png')
+    encoded = base64.b64encode(tmpfile.getvalue()).decode('utf-8')
+    html = '<img src=\'data:image/png;base64,{}\'>'.format(encoded)
+    return html
 
 
 def fig_time_to_reply_per_weekday(df) -> go.Figure:
