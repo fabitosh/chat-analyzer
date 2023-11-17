@@ -57,7 +57,7 @@ def n_messages_per_day(df) -> pd.Series:
 
 
 if __name__ == '__main__':
-    df = pd.read_pickle("../data/df_whatsapp_10112023-2055.pkl")
+    df = pd.read_pickle("../data/df_whatsapp_12112023-1557.pkl")
     for chat, df_chat in df.groupby("chat"):
         print(chat)
         # Chat Overview Metrics®
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             f.write(html_time_to_reply)
             f.write("</center>")
 
-        break
+        # break
 
 
 
