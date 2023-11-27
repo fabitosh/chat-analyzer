@@ -155,4 +155,5 @@ def fig_time_to_reply_per_weekday(df) -> go.Figure:
                   color='sender',
                   labels={'y': "Time to Reply [min]"},
                   log_y=True,
+                  height=700,
                   category_orders={'weekday': df.weekday.cat.categories})
