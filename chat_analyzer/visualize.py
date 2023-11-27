@@ -100,6 +100,54 @@ def matplotlib_fig_to_html(fig):
     return html
 
 
+def create_fig_hourly_barpolar(df) -> go.Figure:
+    fig = go.Figure()
+    for sender, dfp in df.groupby('sender'):
+        fig.add_traces(
+            go.Barpolar(
+                r=dfp.total_messages,
+                theta=dfp.hour * 360 / 24 + 7.5,
+                opacity=0.7,
+                name=sender,
+                customdata=pd.concat([
+                    dfp.hour,
+                    dfp.hour + 1 % 24,
+                    round(dfp.avg_symbols_per_message, 1),
+                    dfp.avg_time_to_reply.apply(timedelta_to_str)
+                ], axis=1)
+            ))
+
+    n_hour_labels = 6
+    fig.update_layout(
+        polar={
+            "angularaxis": {
+                "tickmode": "array",
+                "rotation": 90,
+                "direction": 'clockwise',
+                "tickvals": list(range(0, 360, 360 // n_hour_labels)),
+                "ticktext": [f"{h:02}:00" for h in range(0, 24, 24 // n_hour_labels)],
+                'showgrid': True,
+            },
+            'radialaxis': {
+                'range': [0, df.total_messages.max()],
+                'showgrid': True,
+                'nticks': 6,
+                'tickangle': 90,
+                'showline': False,
+            },
+            'barmode': "overlay",
+        },
+        height=1000,
+    )
+    fig.update_traces(hovertemplate="<br>".join([
+        "<b>%{customdata[0]}:00 - %{customdata[1]}:00</b>",
+        "Messages: %{r}",
+        "Avg. Symbols per Message: %{customdata[2]}",
+        "Avg. Time to Reply: %{customdata[3]}",
+    ]))
+    return fig
+
+
 def fig_time_to_reply_per_weekday(df) -> go.Figure:
     return px.box(df,
                   x='weekday',
