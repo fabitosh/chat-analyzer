@@ -7,7 +7,8 @@ from pandera.typing import DataFrame
 from chat_analyzer import MY_CHAT_NAMES
 from chat_analyzer.aggregate import agg_chat_metrics
 from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat, cat_weekdays
-from chat_analyzer.visualize import pretty_html, fig_time_to_reply_per_weekday, matplotlib_fig_to_html
+from chat_analyzer.visualize import pretty_html, fig_time_to_reply_per_weekday, matplotlib_fig_to_html, \
+    create_fig_hourly_barpolar
 
 
 def extract_single_chat_features(df) -> DataFrame[SingleChat]:
@@ -56,6 +57,13 @@ def n_messages_per_day(df) -> pd.Series:
     return n_msg_per_day
 
 
+def hourly_statistics(df: DataFrame[ChatFeatures]) -> pd.DataFrame:
+    grouping = df.groupby([df.datetime.dt.hour, 'sender'])
+    return (agg_chat_metrics(grouping)
+            .reset_index()
+            .rename(columns={'datetime': 'hour'}))
+
+
 if __name__ == '__main__':
     df = pd.read_pickle("../data/df_whatsapp_12112023-1557.pkl")
     for chat, df_chat in df.groupby("chat"):
@@ -68,6 +76,11 @@ if __name__ == '__main__':
         mplfig, _ = calplot(n_messages_per_day(df_chat), cmap='YlGn')
         html_calplot = matplotlib_fig_to_html(mplfig)
 
+        # Spider Charts Activity per Day
+        hour_stats = hourly_statistics(df_chat)
+        fig_hourly_barpolar = create_fig_hourly_barpolar(hour_stats)
+        html_hourly_barpolar = fig_hourly_barpolar.to_html(full_html=False, include_plotlyjs='cdn')
+
         # Plots
         fig_time_to_reply = fig_time_to_reply_per_weekday(df_chat)
         html_time_to_reply = fig_time_to_reply.to_html(full_html=False, include_plotlyjs='cdn')
@@ -76,6 +89,7 @@ if __name__ == '__main__':
             f.write("<center>")
             f.write(html_chat_metrics)
             f.write(html_calplot)
+            f.write(html_hourly_barpolar)
             f.write(html_time_to_reply)
             f.write("</center>")
 
