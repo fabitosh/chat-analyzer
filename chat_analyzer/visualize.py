@@ -67,6 +67,8 @@ def set_table_style_css(styler):
 
 
 def timedelta_to_str(td: datetime.timedelta):
+    if pd.isna(td):
+        return '-'
     s = td.total_seconds()
     h = 3600
     return f'{int(s / h)}:{int(s % h / 60):02d}:{int(s % 60):02d}'
