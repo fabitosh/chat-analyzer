@@ -1,7 +1,6 @@
 import re
-from typing import Dict
+from typing import Dict, List
 
-import advertools.emoji
 import emoji
 import pandas as pd
 from calplot import calplot
@@ -36,6 +35,7 @@ def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
     d: Dict[int, str] = dict(enumerate(cat_weekdays.categories))
     df['weekday'] = df.datetime.dt.dayofweek.map(d).astype(cat_weekdays)
     df['emojis'] = extract_emojis(df.message)
+    df['n_emojis'] = df.emojis.apply(len)
     return DataFrame[ChatFeatures](df)
 
 
@@ -62,8 +62,11 @@ def n_messages_per_day(df) -> pd.Series:
 
 
 def extract_emojis(s: pd.Series):
-    emoji_pattern = re.compile(advertools.emoji.EMOJI_RAW)
-    return s.str.findall(emoji_pattern)
+    return s.apply(extract_string_emojis)
+
+
+def extract_string_emojis(text: str) -> List[str]:
+    return [e.chars for e in emoji.analyze(text)]
 
 
 def hourly_statistics(df: DataFrame[ChatFeatures]) -> pd.DataFrame:
