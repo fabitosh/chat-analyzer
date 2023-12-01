@@ -113,3 +113,11 @@ def test_extract_emojis_detects_unicode15():
     out = extract_emojis(s)
     expected = pd.Series([[], ['🫨']])
     assert_series_equal(out, expected)
+
+
+def test_extract_emojis_maintains_multi_person_grouping():
+    # https://carpedm20.github.io/emoji/docs/index.html#non-rgi-zwj-emoji
+    s = pd.Series(['Regular Text', 'Text 👨‍👩🏿‍👧🏻‍👦🏾 end'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['👨‍👩🏿‍👧🏻‍👦🏾']])
+    assert_series_equal(out, expected)
