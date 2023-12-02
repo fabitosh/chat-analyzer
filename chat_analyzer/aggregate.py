@@ -20,10 +20,16 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
     return DataFrame[CombinedChat](df_combined)
 
 
-def agg_chat_metrics(dfgb: DataFrameGroupBy) -> None:
+def agg_chat_metrics(dfgb: DataFrameGroupBy) -> pd.DataFrame:
     """derive statistics of grouped data"""
-    dfgb.agg(
-        total_symbols=('n_symbols', 'sum'),
+    df = dfgb.agg(
         total_messages=('message', 'count'),
+        total_symbols=('n_symbols', 'sum'),
+        avg_symbols_per_message=('n_symbols', 'mean'),
         avg_time_to_reply=('duration_to_reply', 'mean'),
+        avg_time_since_their_last=('duration_since_their_last', 'mean'),
+        count_msg_with_answer=('duration_to_reply', 'count'),
     )
+    df['n_follow_up_messages'] = df['total_messages'] - df['count_msg_with_answer']
+    df = df.drop(columns='count_msg_with_answer')
+    return df
