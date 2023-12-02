@@ -2,7 +2,8 @@ import pandas as pd
 from pandas import Timedelta, NaT
 from pandas._testing import assert_series_equal
 
-from chat_analyzer.analyze import determine_duration_since_their_last_message, determine_duration_to_reply
+from chat_analyzer.analyze import determine_duration_since_their_last_message, determine_duration_to_reply, \
+    extract_emojis
 
 
 def test_determine_duration_since_their_last_message():
@@ -55,3 +56,68 @@ def test_determine_duration_to_reply():
                           4: Timedelta('0 days 00:30:30')})
 
     assert_series_equal(expected, out)
+
+
+def test_extract_emojis():
+    s = pd.Series(['Regular Text', '❤️', '👍👍', 'mid😂moji', 'spaces ❤️ around ❤️ multiple'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['❤️'], ['👍', '👍'], ['😂'], ['❤️', '❤️']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_detects_unicode9():
+    s = pd.Series(['Regular Text', '🤣'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['🤣']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_detects_unicode10():
+    s = pd.Series(['Regular Text', '🦖'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['🦖']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_detects_unicode11():
+    s = pd.Series(['Regular Text', '🥰'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['🥰']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_detects_unicode12():
+    s = pd.Series(['Regular Text', '🥱'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['🥱']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_detects_unicode13():
+    s = pd.Series(['Regular Text', '🥲'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['🥲']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_detects_unicode14():
+    s = pd.Series(['Regular Text', '🫠'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['🫠']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_detects_unicode15():
+    # https://emojipedia.org/unicode-15.0
+    s = pd.Series(['Regular Text', '🫨'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['🫨']])
+    assert_series_equal(out, expected)
+
+
+def test_extract_emojis_maintains_multi_person_grouping():
+    # https://carpedm20.github.io/emoji/docs/index.html#non-rgi-zwj-emoji
+    s = pd.Series(['Regular Text', 'Text 👨‍👩🏿‍👧🏻‍👦🏾 end'])
+    out = extract_emojis(s)
+    expected = pd.Series([[], ['👨‍👩🏿‍👧🏻‍👦🏾']])
+    assert_series_equal(out, expected)

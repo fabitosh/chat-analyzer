@@ -1,8 +1,17 @@
+import re
+from typing import Dict, List
+
+import emoji
+import numpy as np
 import pandas as pd
+from calplot import calplot
 from pandera.typing import DataFrame
 
 from chat_analyzer import MY_CHAT_NAMES
-from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat
+from chat_analyzer.aggregate import agg_chat_metrics
+from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat, cat_weekdays, cat_months
+from chat_analyzer.visualize import pretty_html, fig_time_to_reply_per_weekday, matplotlib_fig_to_html, \
+    create_fig_hourly_barpolar
 
 
 def extract_single_chat_features(df) -> DataFrame[SingleChat]:
@@ -24,6 +33,13 @@ def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
     """Features which can be determined without the context of the chat"""
     df['week'] = df.datetime.dt.strftime('%Y-%U')
     df['n_symbols'] = df.message.str.len()
+    d: Dict[int, str] = dict(enumerate(cat_months.categories))
+    df['month'] = df.datetime.dt.month.map(d).astype(cat_months)
+    d: Dict[int, str] = dict(enumerate(cat_weekdays.categories))
+    df['weekday'] = df.datetime.dt.dayofweek.map(d).astype(cat_weekdays)
+    df['hour'] = df.datetime.dt.hour.astype(np.uint8)
+    df['emojis'] = extract_emojis(df.message)
+    df['n_emojis'] = df.emojis.apply(len)
     return DataFrame[ChatFeatures](df)
 
 
@@ -43,5 +59,55 @@ def determine_duration_to_reply(df) -> pd.Series:
     return time_to_respond
 
 
+def n_messages_per_day(df) -> pd.Series:
+    n_msg_per_day = df.groupby(df.datetime.dt.date)['message'].count()
+    n_msg_per_day.index = pd.to_datetime(n_msg_per_day.index)
+    return n_msg_per_day
+
+
+def extract_emojis(s: pd.Series):
+    return s.apply(extract_string_emojis)
+
+
+def extract_string_emojis(text: str) -> List[str]:
+    return [e.chars for e in emoji.analyze(text)]
+
+
+def hourly_statistics(df: DataFrame[ChatFeatures]) -> pd.DataFrame:
+    grouping = df.groupby([df.hour, 'sender'])
+    return agg_chat_metrics(grouping).reset_index()
+
+
 if __name__ == '__main__':
-    pass
+    df = pd.read_pickle("../data/df_whatsapp_12112023-1557.pkl")
+    for chat, df_chat in df.groupby("chat"):
+        print(chat)
+        # Chat Overview Metrics®
+        chat_metrics = agg_chat_metrics(df_chat.groupby('sender'))
+        html_chat_metrics = pretty_html(chat_metrics, caption=f"Chat Metrics for {chat}")
+
+        # Calplot of messages
+        mplfig, _ = calplot(n_messages_per_day(df_chat), cmap='YlGn')
+        html_calplot = matplotlib_fig_to_html(mplfig)
+
+        # Spider Charts Activity per Day
+        hour_stats = hourly_statistics(df_chat)
+        fig_hourly_barpolar = create_fig_hourly_barpolar(hour_stats)
+        html_hourly_barpolar = fig_hourly_barpolar.to_html(full_html=False, include_plotlyjs='cdn')
+
+        # Plots
+        fig_time_to_reply = fig_time_to_reply_per_weekday(df_chat)
+        html_time_to_reply = fig_time_to_reply.to_html(full_html=False, include_plotlyjs='cdn')
+
+        with open(f'../data/Chat_Analysis_{chat.replace(" ", "_")}.html', 'w+') as f:
+            f.write("<center>")
+            f.write(html_chat_metrics)
+            f.write(html_calplot)
+            f.write(html_hourly_barpolar)
+            f.write(html_time_to_reply)
+            f.write("</center>")
+
+        # break
+
+
+
