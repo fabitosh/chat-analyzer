@@ -35,6 +35,11 @@ cat_weekdays = CategoricalDtype(
     ordered=True)
 
 
+cat_months = CategoricalDtype(
+    categories=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dez'],
+    ordered=True)
+
+
 class ChatFeatures(CombinedChat):
     week: str  # Year-Week
     n_symbols: int

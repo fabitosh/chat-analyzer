@@ -8,7 +8,7 @@ from pandera.typing import DataFrame
 
 from chat_analyzer import MY_CHAT_NAMES
 from chat_analyzer.aggregate import agg_chat_metrics
-from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat, cat_weekdays
+from chat_analyzer.data_definitions import CombinedChat, ChatFeatures, SingleChat, cat_weekdays, cat_months
 from chat_analyzer.visualize import pretty_html, fig_time_to_reply_per_weekday, matplotlib_fig_to_html, \
     create_fig_hourly_barpolar
 
@@ -32,8 +32,11 @@ def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
     """Features which can be determined without the context of the chat"""
     df['week'] = df.datetime.dt.strftime('%Y-%U')
     df['n_symbols'] = df.message.str.len()
+    d: Dict[int, str] = dict(enumerate(cat_months.categories))
+    df['month'] = df.datetime.dt.month.map(d).astype(cat_months)
     d: Dict[int, str] = dict(enumerate(cat_weekdays.categories))
     df['weekday'] = df.datetime.dt.dayofweek.map(d).astype(cat_weekdays)
+    df['hour'] = df.datetime.dt.hour.astype("category")
     df['emojis'] = extract_emojis(df.message)
     df['n_emojis'] = df.emojis.apply(len)
     return DataFrame[ChatFeatures](df)
