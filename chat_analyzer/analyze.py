@@ -2,6 +2,7 @@ import re
 from typing import Dict, List
 
 import emoji
+import numpy as np
 import pandas as pd
 from calplot import calplot
 from pandera.typing import DataFrame
@@ -36,7 +37,7 @@ def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
     df['month'] = df.datetime.dt.month.map(d).astype(cat_months)
     d: Dict[int, str] = dict(enumerate(cat_weekdays.categories))
     df['weekday'] = df.datetime.dt.dayofweek.map(d).astype(cat_weekdays)
-    df['hour'] = df.datetime.dt.hour.astype("category")
+    df['hour'] = df.datetime.dt.hour.astype(np.uint8)
     df['emojis'] = extract_emojis(df.message)
     df['n_emojis'] = df.emojis.apply(len)
     return DataFrame[ChatFeatures](df)
@@ -73,10 +74,8 @@ def extract_string_emojis(text: str) -> List[str]:
 
 
 def hourly_statistics(df: DataFrame[ChatFeatures]) -> pd.DataFrame:
-    grouping = df.groupby([df.datetime.dt.hour, 'sender'])
-    return (agg_chat_metrics(grouping)
-            .reset_index()
-            .rename(columns={'datetime': 'hour'}))
+    grouping = df.groupby([df.hour, 'sender'])
+    return agg_chat_metrics(grouping).reset_index()
 
 
 if __name__ == '__main__':
