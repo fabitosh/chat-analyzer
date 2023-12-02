@@ -1,7 +1,7 @@
 import base64
 import datetime
 from io import BytesIO
-from typing import Dict, Optional
+from typing import Optional
 
 import pandas as pd
 import plotly.graph_objs as go
@@ -103,19 +103,20 @@ def matplotlib_fig_to_html(fig):
 def create_fig_hourly_barpolar(df) -> go.Figure:
     fig = go.Figure()
     for sender, dfp in df.groupby('sender'):
-        fig.add_traces(
-            go.Barpolar(
-                r=dfp.total_messages,
-                theta=dfp.hour * 360 / 24 + 7.5,
-                opacity=0.7,
-                name=sender,
-                customdata=pd.concat([
-                    dfp.hour,
-                    dfp.hour + 1 % 24,
-                    round(dfp.avg_symbols_per_message, 1),
-                    dfp.avg_time_to_reply.apply(timedelta_to_str)
-                ], axis=1)
-            ))
+        customdata = pd.concat([
+            dfp.hour,
+            dfp.hour + 1 % 24,
+            round(dfp.avg_symbols_per_message, 1),
+            dfp.avg_time_to_reply.apply(timedelta_to_str)], axis=1)
+
+        hourly_polar_bars = go.Barpolar(
+            r=dfp.total_messages,
+            theta=dfp.hour * 360 / 24 + 7.5,
+            opacity=0.7,
+            name=sender,
+            customdata=customdata)
+
+        fig.add_traces([hourly_polar_bars])
 
     n_hour_labels = 6
     fig.update_layout(
