@@ -7,9 +7,9 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from chat_analyzer import PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG
-from chat_analyzer.aggregate import merge_consecutive_msg
-from chat_analyzer.analyze import add_features, extract_single_chat_features
-from chat_analyzer.data_definitions import RawChat, SingleChat
+from chat_analyzer.data_processing.aggregate import merge_consecutive_msg
+from chat_analyzer.analysis.analyze import add_features, extract_single_chat_features
+from chat_analyzer.utils.data_definitions import RawChat, SingleChat
 
 
 def load_whatsapp_chat(chat_txt: str) -> DataFrame[SingleChat]:
@@ -50,14 +50,10 @@ def aggregate_whatsapp_conversations(path_whatsapp_chats: str) -> Optional[pd.Da
     return df
 
 
-def agg_to_pkl(path_whatsapp, path_signal) -> str:
+def agg_to_pkl(path_whatsapp, path_signal, path_processed_pkl) -> str:
     df = aggregate_whatsapp_conversations(path_whatsapp)
     dtnow = datetime.datetime.now().strftime("%d%m%Y-%H%M")
-    path_pkl = f"../data/df_whatsapp_{dtnow}.pkl"
+    file_name = f"df_whatsapp_{dtnow}.pkl"
+    path_pkl = os.path.join(path_processed_pkl, file_name)
     df.to_pickle(path_pkl)
     return path_pkl
-
-
-if __name__ == "__main__":
-    pkl_path = agg_to_pkl(PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG)
-    print(f"Chats aggregated in pickle file at {pkl_path}")
