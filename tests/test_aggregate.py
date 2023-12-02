@@ -3,8 +3,8 @@ from pandas import Timestamp, Timedelta
 from pandas._testing import assert_frame_equal
 from pandera.typing import DataFrame
 
-from chat_analyzer.aggregate import merge_consecutive_msg
-from chat_analyzer.data_definitions import RawChat
+from chat_analyzer.data_processing.aggregate import merge_consecutive_msg
+from chat_analyzer.utils.data_definitions import RawChat
 
 
 def test_merge_consecutive_msg():

@@ -3,7 +3,7 @@ from pandas.testing import assert_frame_equal
 import pandas as pd
 import pytest
 
-from chat_analyzer.load import parse_whatsapp
+from chat_analyzer.data_processing.load import parse_whatsapp
 
 
 def test_parse_whatsapp_ignores_whatsapp_disclaimer():

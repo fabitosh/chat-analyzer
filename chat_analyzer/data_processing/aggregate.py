@@ -2,7 +2,7 @@ import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy
 from pandera.typing import DataFrame
 
-from chat_analyzer.data_definitions import RawChat, CombinedChat
+from chat_analyzer.utils.data_definitions import RawChat, CombinedChat
 
 
 def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) -> DataFrame[CombinedChat]:
