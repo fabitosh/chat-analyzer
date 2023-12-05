@@ -1,8 +1,22 @@
+import re
+
 import pandas as pd
-from pandas.core.groupby import DataFrameGroupBy
 from pandera.typing import DataFrame
 
 from chat_analyzer.utils.data_definitions import RawChat, CombinedChat
+
+
+def parse_whatsapp(chat_txt) -> DataFrame[RawChat]:
+    pattern = r'^(\d{1,2}/\d{1,2}/\d{2,4},? \d{1,2}:\d{2}(?: [APap][Mm])?) - ([^:]+): (.+)$'
+    matches = re.findall(pattern, chat_txt, re.MULTILINE)
+    data = []
+    for timestamp, sender, message in matches:
+        data.append({'timestamp': timestamp, 'sender': sender, 'message': message})
+    df = pd.DataFrame(data)
+    df['datetime'] = pd.to_datetime(df['timestamp'], format="%d/%m/%Y, %H:%M", errors='raise')
+    df = df.drop(columns='timestamp')
+    # df['sender'] = df['sender'].astype("category")
+    return DataFrame[RawChat](df)
 
 
 def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) -> DataFrame[CombinedChat]:
@@ -18,18 +32,3 @@ def merge_consecutive_msg(df: DataFrame[RawChat], merge_window_s: float = 60) ->
     ).reset_index(drop=True)
     df_combined['block_duration'] = df_combined['datetime_last'] - df_combined['datetime']
     return DataFrame[CombinedChat](df_combined)
-
-
-def agg_chat_metrics(dfgb: DataFrameGroupBy) -> pd.DataFrame:
-    """derive statistics of grouped data"""
-    df = dfgb.agg(
-        total_messages=('message', 'count'),
-        total_symbols=('n_symbols', 'sum'),
-        avg_symbols_per_message=('n_symbols', 'mean'),
-        avg_time_to_reply=('duration_to_reply', 'mean'),
-        avg_time_since_their_last=('duration_since_their_last', 'mean'),
-        count_msg_with_answer=('duration_to_reply', 'count'),
-    )
-    df['n_follow_up_messages'] = df['total_messages'] - df['count_msg_with_answer']
-    df = df.drop(columns='count_msg_with_answer')
-    return df

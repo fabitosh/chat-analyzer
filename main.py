@@ -2,8 +2,7 @@ import pandas as pd
 from calplot import calplot
 
 from chat_analyzer import PATH_WHATSAPP_MSG, PATH_SIGNAL_MSG, PATH_DIR_PROCESSED_PICKLES
-from chat_analyzer.analysis.analyze import n_messages_per_day, hourly_statistics
-from chat_analyzer.data_processing.aggregate import agg_chat_metrics
+from chat_analyzer.analysis.analysis import n_messages_per_day, hourly_statistics, agg_chat_metrics
 from chat_analyzer.data_processing.load import agg_to_pkl
 from chat_analyzer.visualization.visualize import pretty_html, matplotlib_fig_to_html, create_fig_hourly_barpolar, \
     fig_time_to_reply_per_weekday
