@@ -1,5 +1,5 @@
 MY_CHAT_NAMES = ["Fabio Meier"]
-PATH_SIGNAL_MSG = "../signal_messages/"
-PATH_WHATSAPP_MSG = r"/Users/fabiomeier/Library/CloudStorage/GoogleDrive-fabio.dot.meier@gmail.com/My Drive/Freizeit/WhatsAppExports/"
+PATH_SIGNAL_MSG = "data/raw/signal_messages/"
+PATH_WHATSAPP_MSG = "data/raw/whatsapp_messages"
 
 PATH_DIR_PROCESSED_PICKLES = "data/processed/"
