@@ -2,7 +2,7 @@ import pandas as pd
 from pandas import Timedelta, NaT
 from pandas._testing import assert_series_equal
 
-from chat_analyzer.analyze import determine_duration_since_their_last_message, determine_duration_to_reply, \
+from chat_analyzer.data_processing.feature_engineering import determine_duration_since_their_last_message, determine_duration_to_reply, \
     extract_emojis
 
 
