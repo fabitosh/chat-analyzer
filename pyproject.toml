@@ -17,6 +17,7 @@ pandera = "^0.17.2"
 pytest = "^7.4.3"
 calplot = "^0.1.7.5"
 emoji = "^2.8.0"
+dash = "^2.14.2"
 
 
 [tool.poetry.group.dev.dependencies]
