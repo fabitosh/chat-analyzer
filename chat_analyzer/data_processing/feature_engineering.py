@@ -26,6 +26,8 @@ def extract_single_chat_features(df) -> DataFrame[SingleChat]:
 
 def add_features(df: DataFrame[CombinedChat]) -> DataFrame[ChatFeatures]:
     """Features which can be determined without the context of the chat"""
+    df['year'] = df.datetime.dt.year.astype(np.uint16)
+
     id_to_month: Dict[int, str] = dict(enumerate(cat_months.categories))
     df['month'] = df.datetime.dt.month.map(id_to_month).astype(cat_months)
 
