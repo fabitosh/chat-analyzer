@@ -7,3 +7,4 @@ PATH_WHATSAPP_MSG = "data/raw/whatsapp_messages/"
 
 # Export path for parsed and enriched pandas dataframes
 PATH_DIR_PROCESSED_PICKLES = "data/processed/"
+PATH_DIR_CHAT_HTML_VISUALIZATIONS = "data/visualized/"

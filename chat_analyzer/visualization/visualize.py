@@ -1,14 +1,48 @@
 import base64
 import datetime
+import os
 from io import BytesIO
 from typing import Optional
 
 import pandas as pd
-import plotly.graph_objs as go
 import plotly.express as px
+import plotly.graph_objs as go
+from calplot import calplot
+
+from chat_analyzer.analysis.analysis import agg_chat_metrics, n_messages_per_day, hourly_statistics
+from chat_analyzer.utils.data_definitions import ChatFeatures
 
 PRIMARY_COLOR = "#aaaaaa"
 SECONDARY_COLOR = "#dddddd"
+
+
+def create_chat_html(df_chat: ChatFeatures, chat: str, path_html_output: str):
+    # Chat Overview Metrics
+    chat_metrics = agg_chat_metrics(df_chat.groupby('sender'))
+    html_chat_metrics = pretty_html(chat_metrics, caption=f"Chat Metrics for {chat}")
+
+    # Calplot of messages
+    mplfig, _ = calplot(n_messages_per_day(df_chat), cmap='YlGn')
+    html_calplot = matplotlib_fig_to_html(mplfig)
+
+    # Spider Charts Activity per Day
+    hour_stats = hourly_statistics(df_chat)
+    fig_hourly_barpolar = create_fig_hourly_barpolar(hour_stats)
+    html_hourly_barpolar = fig_hourly_barpolar.to_html(full_html=False, include_plotlyjs='cdn')
+
+    # Barplot time to reply by weekday
+    fig_time_to_reply = fig_time_to_reply_per_weekday(df_chat)
+    html_time_to_reply = fig_time_to_reply.to_html(full_html=False, include_plotlyjs='cdn')
+
+    filename = f'Chat_Analysis_{chat.replace(" ", "_")}.html'
+    filepath = os.path.join(path_html_output, filename)
+    with open(filepath, 'w+') as f:
+        f.write("<center>")
+        f.write(html_chat_metrics)
+        f.write(html_calplot)
+        f.write(html_hourly_barpolar)
+        f.write(html_time_to_reply)
+        f.write("</center>")
 
 
 def hover(hover_color=SECONDARY_COLOR):
