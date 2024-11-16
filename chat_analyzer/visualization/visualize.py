@@ -34,6 +34,9 @@ def create_chat_html(df_chat: ChatFeatures, chat: str, path_html_output: str):
     fig_time_to_reply = fig_time_to_reply_per_weekday(df_chat)
     html_time_to_reply = fig_time_to_reply.to_html(full_html=False, include_plotlyjs='cdn')
 
+    if not os.path.exists(path_html_output):
+        os.makedirs(path_html_output)
+
     filename = f'Chat_Analysis_{chat.replace(" ", "_")}.html'
     filepath = os.path.join(path_html_output, filename)
     with open(filepath, 'w+') as f:

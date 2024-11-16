@@ -16,6 +16,8 @@ register_page(
     order=3,
 )
 
+if not os.path.exists(PATH_DIR_PROCESSED_PICKLES):
+    os.makedirs(PATH_DIR_PROCESSED_PICKLES)
 
 pkl_files = glob.glob('../../' + PATH_DIR_PROCESSED_PICKLES + '*.pkl')
 latest_pkl_file = max(pkl_files, key=os.path.getctime)

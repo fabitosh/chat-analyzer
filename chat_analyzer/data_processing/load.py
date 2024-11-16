@@ -39,6 +39,8 @@ def agg_to_pkl(path_whatsapp, path_signal, path_processed_pkl) -> str:
     df = aggregate_whatsapp_conversations(path_whatsapp)
     dtnow = datetime.datetime.now().strftime("%d%m%Y-%H%M")
     file_name = f"df_whatsapp_{dtnow}.pkl"
+    if not os.path.exists(path_processed_pkl):
+        os.makedirs(path_processed_pkl)
     path_pkl = os.path.join(path_processed_pkl, file_name)
     df.to_pickle(path_pkl)
     return path_pkl
