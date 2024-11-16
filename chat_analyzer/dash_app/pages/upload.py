@@ -39,7 +39,7 @@ def layout():
                     },
                     multiple=False),
             ])),
-        dbc.Row(dbc.Col(html.Div(id='output-data-upload'))),
+        dbc.Row(dbc.Col(html.Div(id='output-data'))),
     ])
     return layout
 
@@ -47,29 +47,17 @@ def layout():
 def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
-    try:
-        chat_export: str = decoded.decode('utf-8')
-        df = load_whatsapp_chat(chat_export)
-    except Exception as e:
-        print(e)
-        return html.Div([f'There was an error processing this file of type {content_type}.'])
-
-    return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-
-        dash_table.DataTable(
-            df.iloc[:20].to_dict('records'),
-            [{'name': i, 'id': i} for i in df.columns]
-        ),
-    ])
+    chat_export: str = decoded.decode('utf-8')
+    df = load_whatsapp_chat(chat_export)
+    return df
 
 
-@callback(Output('output-data-upload', 'children'),
+@callback(Output('df-store', 'data'),
           Input('upload-data', 'contents'),
           State('upload-data', 'filename'),
           State('upload-data', 'last_modified'))
 def update_output(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
-        children = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
+        df = parse_contents(list_of_contents, list_of_names, list_of_dates)
+        print("Parsed Contents")
+        return df.to_json(date_format='iso', orient='records')
