@@ -2,6 +2,8 @@ import dash_ag_grid as dag
 import pandas as pd
 from dash import html, register_page, callback, Output, Input
 
+from chat_analyzer.dash_app.serializer import deserialize, SerializedData
+
 register_page(
     __name__,
     name='Filter',
@@ -22,10 +24,10 @@ def layout():
     Output('ag-grid-container', 'children'),
     Input('df-store', 'data')
 )
-def display_grid(df_json):
+def display_grid(data: SerializedData):
     print("Displaying grid")
-    if df_json is not None:
-        df = pd.read_json(df_json, orient='records')
+    if data is not None:
+        df: pd.DataFrame = deserialize(data)
         grid = dag.AgGrid(
             id='my-grid',
             columnDefs=[{"field": i} for i in df.columns],

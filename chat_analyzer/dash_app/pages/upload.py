@@ -2,6 +2,7 @@ import base64
 from dash import html, register_page, dcc, Output, Input, callback, State
 import dash_bootstrap_components as dbc
 
+from chat_analyzer.dash_app.serializer import serialize, SerializedData
 from chat_analyzer.data_processing.load import load_whatsapp_chat
 
 register_page(
@@ -52,8 +53,8 @@ def parse_contents(contents, filename, date):
           Input('upload-data', 'contents'),
           State('upload-data', 'filename'),
           State('upload-data', 'last_modified'))
-def update_output(list_of_contents, list_of_names, list_of_dates):
+def update_output(list_of_contents, list_of_names, list_of_dates) -> SerializedData:
     if list_of_contents is not None:
         df = parse_contents(list_of_contents, list_of_names, list_of_dates)
         print("Parsed Contents")
-        return df.to_json(date_format='iso', orient='records')
+        return serialize(df)
