@@ -9,14 +9,9 @@ register_page(
     order=2
 )
 
-
 def layout():
     layout = html.Div([
-        html.H1(
-            [
-                "Filter"
-            ]
-        )
+        html.H1(["Filter"]),
         html.Div(id='ag-grid-container'),
     ])
     return layout

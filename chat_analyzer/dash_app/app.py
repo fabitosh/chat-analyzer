@@ -28,8 +28,9 @@ app.layout = dcc.Loading(  # <- Wrap App with Loading Component
         html.Div(
             [
                 create_navbar(),
-                page_container
-            ]
+                page_container,
+            ],
+
         )
     ],
 )
