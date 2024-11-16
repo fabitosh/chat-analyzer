@@ -1,9 +1,5 @@
 import base64
-import datetime
-import io
-
-import pandas as pd
-from dash import html, register_page, dcc, dash_table, Output, Input, callback, State
+from dash import html, register_page, dcc, Output, Input, callback, State
 import dash_bootstrap_components as dbc
 
 from chat_analyzer.data_processing.load import load_whatsapp_chat

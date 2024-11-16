@@ -1,6 +1,6 @@
+import dash_ag_grid as dag
 import pandas as pd
 from dash import html, register_page, callback, Output, Input
-import dash_ag_grid as dag
 
 register_page(
     __name__,
@@ -9,12 +9,14 @@ register_page(
     order=2
 )
 
+
 def layout():
     layout = html.Div([
         html.H1(["Filter"]),
         html.Div(id='ag-grid-container'),
     ])
     return layout
+
 
 @callback(
     Output('ag-grid-container', 'children'),

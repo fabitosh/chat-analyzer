@@ -1,9 +1,9 @@
 import glob
 import os
 
-import pandas as pd
-from dash import Dash, html, dcc, callback, Output, Input, dash_table, register_page
 import dash_bootstrap_components as dbc
+import pandas as pd
+from dash import html, dcc, callback, Output, Input, dash_table, register_page
 
 from chat_analyzer import PATH_DIR_PROCESSED_PICKLES, MY_CHAT_NAMES
 from chat_analyzer.analysis.analysis import agg_chat_metrics, hourly_statistics
@@ -42,6 +42,7 @@ def layout():
         dbc.Row(html.Hr()),
     ])
     return layout
+
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
 SIDEBAR_STYLE = {
