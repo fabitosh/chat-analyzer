@@ -30,12 +30,13 @@ def display_grid(data: SerializedData):
         df: pd.DataFrame = deserialize(data)
         grid = dag.AgGrid(
             id='my-grid',
-            columnDefs=[{"field": i} for i in df.columns],
+            columnDefs=[{"field": i} for i in df.columns if i not in ["block_duration", "chat", "receiver"]],
             rowData=df.to_dict('records'),
             defaultColDef={
                 "filter": True,
                 "sortable": True,
                 "resizable": True
             },
+            style={"height": 1200, "width": "100%"}
         )
         return grid
