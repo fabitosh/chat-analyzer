@@ -4,7 +4,7 @@ import dash_ag_grid as dag
 import pandas as pd
 from dash import html, register_page, callback, Output, Input, dcc
 
-from chat_analyzer.dash_app.serializer import deserialize, SerializedData
+from chat_analyzer.dash_app.serializer import deserialize, SerializedData, serialize
 
 register_page(
     __name__,
@@ -18,7 +18,9 @@ def layout():
     layout = html.Div([
         html.H1(["Filter"]),
         dcc.DatePickerRange(id='datetime-range-picker'),
+        html.Button('Apply Filters', id='button-apply-filters'),
         html.Div(id='ag-grid-container'),
+        html.Button('Reset Filters', id='button-reset-filters'),
     ])
     return layout
 
@@ -50,3 +52,23 @@ def display_grid(data: SerializedData):
         return grid, dt_min, dt_max, dt_max
     return html.Div("No data to display"), None, None, None
 
+
+@callback(
+    Output('df-filtered', 'dff'),
+    Input('button-apply-filters', 'n_clicks'),
+    Input('ag-grid-container', 'children')
+)
+def apply_filters(n_clicks, children):
+    # todo: make ag-grid editable and load edited df
+    dff = children
+    return serialize(dff)
+
+
+@callback(
+    Output('df-filtered', 'dff'),
+    Input('button-reset-filters', 'n_clicks'),
+    Input('df-raw', 'data')
+)
+def reset_filters(n_clicks, ):
+    dff = deserialize('data')
+    return serialize(dff)
