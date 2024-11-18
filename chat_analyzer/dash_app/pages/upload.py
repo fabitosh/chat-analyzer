@@ -49,7 +49,7 @@ def parse_contents(contents, filename, date):
     return df
 
 
-@callback(Output('df-store', 'data'),
+@callback(Output('df-raw', 'data'),
           Input('upload-data', 'contents'),
           State('upload-data', 'filename'),
           State('upload-data', 'last_modified'))

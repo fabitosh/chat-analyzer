@@ -12,7 +12,7 @@ app = Dash(__name__,
 app.layout = dcc.Loading(  # <- Wrap App with Loading Component
     id='loading-page-content',
     children=[
-        dcc.Store(id='df-store', storage_type='session'),
+        dcc.Store(id='df-raw', storage_type='session'),
         html.Div(
             [
                 create_navbar(),

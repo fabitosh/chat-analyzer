@@ -23,6 +23,7 @@ def layout():
 @callback(
     Output('ag-grid-container', 'children'),
     Input('df-store', 'data')
+    Input('df-raw', 'data')
 )
 def display_grid(data: SerializedData):
     print("Displaying grid")
